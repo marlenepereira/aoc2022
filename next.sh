@@ -30,15 +30,21 @@ create_day() {
   local day_num="${1}"
   local day_dir
   day_dir="$(day_dir "${day_num}")"
+  mkdir "${day_dir}"
 
   # Create a new Cargo bin directory.
-  cargo new --bin "${day_dir}"
+  cd "${day_dir}" && go mod init "marlenepereira/aoc2018/${day_dir}"
+  touch main.go
+  echo "package main
+func main() {}" > main.go
 
   # Create an empty input/input.txt file for the day.
-  local input_dir="${day_dir}/input"
+  local input_dir="input"
   local input_file="${input_dir}/input.txt"
+  local test_file="${input_dir}/test.txt"
   mkdir "${input_dir}"
   touch "${input_file}"
+  touch "${test_file}"
 
   # Remind to copy the day's input from the website. Need to open the website in a
   # browser since it requires you to be logged in and each user's input is different.
