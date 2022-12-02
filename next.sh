@@ -33,7 +33,7 @@ create_day() {
   mkdir "${day_dir}"
 
   # Create a new Cargo bin directory.
-  cd "${day_dir}" && go mod init "marlenepereira/aoc2018/${day_dir}"
+  cd "${day_dir}" && go mod init "marlenepereira/aoc2022/${day_dir}"
   touch main.go
   echo "package main
 func main() {}" > main.go

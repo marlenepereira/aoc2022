@@ -16,7 +16,8 @@ func (c calorieCount) Len() int {
 }
 
 func (c calorieCount) Less(i, j int) bool {
-	return c[i] < c[j]
+	// create a max heap
+	return c[i] > c[j]
 }
 
 func (c calorieCount) Swap(i, j int) {
@@ -35,17 +36,17 @@ func (c *calorieCount) Pop() any {
 	return pop
 }
 
-func readInput() ([]int, error) {
+func readInput() (*calorieCount, error) {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	var calories []int
+	calories := &calorieCount{}
 	var current int
 	for scanner.Scan() {
 		calString := scanner.Text()
 
 		if calString == "" {
 			// found empty line
-			calories = append(calories, current)
+			heap.Push(calories, current)
 			current = 0
 			continue
 		}
@@ -60,6 +61,8 @@ func readInput() ([]int, error) {
 		return nil, err
 	}
 
+	// push last calorie count
+	heap.Push(calories, current)
 	return calories, nil
 }
 
@@ -69,23 +72,14 @@ func main() {
 		log.Fatalf("error reading input: %v", err)
 	}
 
-	minHeap := calorieCount{}
-	kth := 3
-	var maxSum int
-	for _, c := range cal {
-		maxSum += c
-		heap.Push(&minHeap, c)
-		for minHeap.Len() > kth {
-			pop := heap.Pop(&minHeap)
-			maxSum -= pop.(int)
-		}
+	maxCount := heap.Pop(cal).(int)
+	maxSum := maxCount
+	for k := 2; k > 0; k-- {
+		pop := heap.Pop(cal).(int)
+		fmt.Println(pop)
+		maxSum += pop
 	}
 
-	var maxCount int
-	for minHeap.Len() != 0 {
-		maxCount = heap.Pop(&minHeap).(int)
-	}
-
-	fmt.Printf("part one: %v\n", maxCount)
-	fmt.Printf("part two: %v\n", maxSum)
+	fmt.Printf("part one: %v\n", maxCount) // 69289
+	fmt.Printf("part two: %v\n", maxSum)   // 205615
 }
