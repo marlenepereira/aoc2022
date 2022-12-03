@@ -76,7 +76,6 @@ func main() {
 	maxSum := maxCount
 	for k := 2; k > 0; k-- {
 		pop := heap.Pop(cal).(int)
-		fmt.Println(pop)
 		maxSum += pop
 	}
 

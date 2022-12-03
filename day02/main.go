@@ -60,9 +60,9 @@ type outcomeStrategy struct {
 	strategy map[string]int
 }
 
-func (o outcomeStrategy) play(players []string, config *shapesGameConfig) int {
-	playerOneShape := config.shapesCode[players[0]]
-	outcome := o.strategy[players[1]]
+func (o outcomeStrategy) play(round []string, config *shapesGameConfig) int {
+	playerOneShape := config.shapesCode[round[0]]
+	outcome := o.strategy[round[1]]
 
 	var playShape int
 	switch outcome {
