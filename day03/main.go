@@ -103,7 +103,7 @@ func main() {
 	for _, rucksack := range rucksacks {
 		itemPrioritySum += getItemPriority(rucksack)
 		group = append(group, rucksack)
-		if len(group)%3 == 0 {
+		if len(group) == 3 {
 			badgeSum += getGroupBadgePriority(group)
 			group = nil
 		}
