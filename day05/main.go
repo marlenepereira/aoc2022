@@ -13,6 +13,47 @@ const (
 	model9001
 )
 
+type procedure struct {
+	moves int
+	from  int
+	to    int
+}
+
+type supplies []stack
+
+type stack struct {
+	crates []string
+}
+
+func (s *supplies) stackLocation(id int) int {
+	return id - 1
+}
+
+func (s *stack) load(crate ...string) {
+	s.crates = append(s.crates, crate...)
+}
+
+func (s *stack) unload(q ...int) []string {
+	length := len(s.crates)
+	if length == 0 {
+		return nil
+	}
+
+	end := 1
+	if len(q) != 0 {
+		end = q[0]
+	}
+
+	indexRange := length - end
+	if indexRange < 0 {
+		indexRange = 0
+	}
+
+	unloaded := s.crates[indexRange:]
+	s.crates = s.crates[:indexRange]
+	return unloaded
+}
+
 type crane struct {
 	model int
 	job   *craneJob
@@ -59,47 +100,6 @@ func (c *crane) assignJob(procedures []procedure, s supplies) {
 		procedures: procedures,
 		supplies:   suppliesCopy,
 	}
-}
-
-type procedure struct {
-	moves int
-	from  int
-	to    int
-}
-
-type supplies []stack
-
-type stack struct {
-	crates []string
-}
-
-func (s *supplies) stackLocation(id int) int {
-	return id - 1
-}
-
-func (s *stack) load(crate ...string) {
-	s.crates = append(s.crates, crate...)
-}
-
-func (s *stack) unload(q ...int) []string {
-	length := len(s.crates)
-	if length == 0 {
-		return nil
-	}
-
-	end := 1
-	if len(q) != 0 {
-		end = q[0]
-	}
-
-	indexRange := length - end
-	if indexRange < 0 {
-		indexRange = 0
-	}
-
-	unloaded := s.crates[indexRange:]
-	s.crates = s.crates[:indexRange]
-	return unloaded
 }
 
 func readInputTwo() (supplies, []procedure, error) {
