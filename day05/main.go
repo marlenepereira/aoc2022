@@ -95,9 +95,8 @@ func (s *stack) unload(q ...int) []string {
 	indexRange := length - end
 	if indexRange < 0 {
 		indexRange = 0
-	} else {
-
 	}
+
 	unloaded := s.crates[indexRange:]
 	s.crates = s.crates[:indexRange]
 	return unloaded
