@@ -35,34 +35,25 @@ func readInput() ([][]int, error) {
 	return sections, nil
 }
 
-func fullOverlaps(sections [][]int) int {
-	var overlaps int
-	for i := 0; i < len(sections); i += 2 {
-		startOne, startTwo := sections[i][0], sections[i+1][0]
-		endOne, endTwo := sections[i][1], sections[i+1][1]
-		if (startOne >= startTwo && endOne <= endTwo) ||
-			(startOne <= startTwo && endOne >= endTwo) {
-			overlaps++
-		}
-	}
-	return overlaps
-}
-
-func allOverlaps(sections [][]int) int {
-	var overlaps int
+func overlaps(sections [][]int) (int, int) {
+	var partialOverlaps, fullOverlaps int
 	for i := 0; i < len(sections); i += 2 {
 		// sort if required
 		if sections[i][0] > sections[i+1][0] {
 			sections[i], sections[i+1] = sections[i+1], sections[i]
 		}
 
-		endOne := sections[i][1]
-		startTwo := sections[i+1][0]
-		if endOne >= startTwo {
-			overlaps++
+		startOne, startTwo := sections[i][0], sections[i+1][0]
+		endOne, endTwo := sections[i][1], sections[i+1][1]
+		if (startOne >= startTwo && endOne <= endTwo) ||
+			(startOne <= startTwo && endOne >= endTwo) {
+			fullOverlaps++
+			partialOverlaps++
+		} else if endOne >= startTwo {
+			partialOverlaps++
 		}
 	}
-	return overlaps
+	return partialOverlaps, fullOverlaps
 }
 
 func main() {
@@ -71,6 +62,7 @@ func main() {
 		log.Fatalf("Error reading input: %v", err)
 	}
 
-	fmt.Printf("part one: %v\n", fullOverlaps(sections)) // 567
-	fmt.Printf("part two: %v\n", allOverlaps(sections))  // 907
+	partial, full := overlaps(sections)
+	fmt.Printf("part one: %v\n", full)    // 567
+	fmt.Printf("part two: %v\n", partial) // 907
 }
