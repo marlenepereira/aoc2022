@@ -42,17 +42,6 @@ func (s *stack) pop() *directory {
 	return dir
 }
 
-func commandOrOutputType(in string) int {
-	switch in {
-	case "$":
-		return cmd
-	case "dir":
-		return dir
-	default:
-		return content
-	}
-}
-
 type file struct {
 	name string
 	size int
@@ -163,6 +152,17 @@ func readInput() (*fileSystem, error) {
 	}
 
 	return &f, nil
+}
+
+func commandOrOutputType(in string) int {
+	switch in {
+	case "$":
+		return cmd
+	case "dir":
+		return dir
+	default:
+		return content
+	}
 }
 
 func processFileSystemSizes(f *fileSystem) (int, int) {
