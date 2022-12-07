@@ -26,29 +26,20 @@ type stack struct {
 	directories []*directory
 }
 
-func (s *stack) push(d ...*directory) {
-	s.directories = append(s.directories, d...)
+func (s *stack) push(d *directory) {
+	s.directories = append(s.directories, d)
 }
 
-func (s *stack) pop(q ...int) []*directory {
-	var dirs []*directory
+func (s *stack) pop() *directory {
+	var dir *directory
 	length := len(s.directories)
 	if length == 0 {
-		return dirs
+		return dir
 	}
 
-	end := 1
-	if len(q) > 0 {
-		end = q[0]
-	}
-
-	indexRange := length - end
-	if indexRange < 0 {
-		indexRange = 0
-	}
-	dirs = append(dirs, s.directories[indexRange:]...)
-	s.directories = s.directories[:indexRange]
-	return dirs
+	dir = s.directories[length-1]
+	s.directories = s.directories[:length-1]
+	return dir
 }
 
 func commandOrOutputType(in string) int {
@@ -126,10 +117,10 @@ func readInput() (*fileSystem, error) {
 
 		// process commands
 		if cmdOrOut == cmd && len(commandOrOutput) > 2 {
-			commands := strings.Split(line, " ")
-			switch commands[2] {
+			dirArg := commandOrOutput[2]
+			switch dirArg {
 			case out:
-				currentDir = s.pop()[0]
+				currentDir = s.pop()
 			case root:
 				if currentDir == nil {
 					currentDir = newDirectory(root)
@@ -137,21 +128,20 @@ func readInput() (*fileSystem, error) {
 					f.root = currentDir
 				} else {
 					for len(s.directories) != 0 {
-						currentDir = s.pop()[0]
+						currentDir = s.pop()
 					}
 				}
 			default:
 				// $ cd <dir>
-				dirName := commands[2]
 				s.push(currentDir)
-				currentDir = currentDir.subdirectories[dirName]
+				currentDir = currentDir.subdirectories[dirArg]
 			}
 		}
 
 		// process directory output
 		if cmdOrOut == dir {
-			name := commandOrOutput[1]
-			dir := newDirectory(name)
+			dirName := commandOrOutput[1]
+			dir := newDirectory(dirName)
 			currentDir.subdirectories[dir.name] = dir
 
 		}
