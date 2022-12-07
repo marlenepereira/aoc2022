@@ -14,33 +14,11 @@ const (
 	diskSpace           = 70000000
 	updateRequiredSpace = 30000000
 
-	cmd = iota
-	dir
-	content
-
+	cmd  = "$"
+	dir  = "dir"
 	out  = ".."
 	root = "/"
 )
-
-type stack struct {
-	directories []*directory
-}
-
-func (s *stack) push(d *directory) {
-	s.directories = append(s.directories, d)
-}
-
-func (s *stack) pop() *directory {
-	var dir *directory
-	length := len(s.directories)
-	if length == 0 {
-		return dir
-	}
-
-	dir = s.directories[length-1]
-	s.directories = s.directories[:length-1]
-	return dir
-}
 
 type file struct {
 	name string
@@ -49,6 +27,7 @@ type file struct {
 
 type directory struct {
 	name           string
+	parent         *directory
 	files          []file
 	subdirectories map[string]*directory
 }
@@ -92,8 +71,6 @@ func (f *fileSystem) usedSpace(track func(size int)) int {
 
 func readInput() (*fileSystem, error) {
 	f := fileSystem{}
-	s := stack{}
-
 	scanner := bufio.NewScanner(os.Stdin)
 
 	var currentDir *directory
@@ -102,27 +79,25 @@ func readInput() (*fileSystem, error) {
 		line := scanner.Text()
 
 		commandOrOutput := strings.Split(line, " ")
-		cmdOrOut := commandOrOutputType(commandOrOutput[0])
+		cmdOrOut := commandOrOutput[0]
 
 		// process commands
 		if cmdOrOut == cmd && len(commandOrOutput) > 2 {
 			dirArg := commandOrOutput[2]
 			switch dirArg {
 			case out:
-				currentDir = s.pop()
+				currentDir = currentDir.parent
 			case root:
 				if currentDir == nil {
 					currentDir = newDirectory(root)
-					s.push(currentDir)
 					f.root = currentDir
 				} else {
-					for len(s.directories) != 0 {
-						currentDir = s.pop()
+					for currentDir.parent != nil {
+						currentDir = currentDir.parent
 					}
 				}
 			default:
 				// $ cd <dir>
-				s.push(currentDir)
 				currentDir = currentDir.subdirectories[dirArg]
 			}
 		}
@@ -131,12 +106,13 @@ func readInput() (*fileSystem, error) {
 		if cmdOrOut == dir {
 			dirName := commandOrOutput[1]
 			dir := newDirectory(dirName)
+			dir.parent = currentDir
 			currentDir.subdirectories[dir.name] = dir
 
 		}
 
 		// process file output
-		if cmdOrOut == content {
+		if cmdOrOut != dir && cmdOrOut != cmd {
 			size, err := strconv.Atoi(commandOrOutput[0])
 			if err != nil {
 				return nil, err
@@ -152,17 +128,6 @@ func readInput() (*fileSystem, error) {
 	}
 
 	return &f, nil
-}
-
-func commandOrOutputType(in string) int {
-	switch in {
-	case "$":
-		return cmd
-	case "dir":
-		return dir
-	default:
-		return content
-	}
 }
 
 func processFileSystemSizes(f *fileSystem) (int, int) {
